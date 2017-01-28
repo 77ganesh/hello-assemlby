@@ -1,4 +1,5 @@
 ; Convert number to string - NOT WORKING :( 
+; I dont know how, but this prints Hello for me - #trolled 
 ;   using win32 api
 ;   x86 (or) i386 (32 bit)
 
@@ -9,43 +10,57 @@ NULL equ 0
 STD_OUTPUT_HANDLE equ -11
 
 section .data
-  myNum db 43
+  myNum db 4
+  mStr2 db "asdasd", 0xa
 
 section .bss
   dummy   resd 1
   mStr    resb 100
-  mStrLen resd 1
+  mStrLen resb 1
   
 section .text
 
 global _main
 _main:
+  push ebp
+  mov ebp, esp
+  mov byte [mStrLen], 5
   ; call _numToString        
 
   push STD_OUTPUT_HANDLE
   call _GetStdHandle@4
 
-  mov word [mStr], 'B'
-  mov word [mStr+1], 'C'
-  mov word [mStrLen], 2
-
   push NULL
   push dummy
-  push dword mStrLen
-  push dword mStr
+  push dword [mStrLen]
+  push dword mStr2
   push eax
   call _WriteConsoleA@20
 
   push NULL
   call _ExitProcess@4
+
+  pop ebp
   hlt
 
 _numToString:
-  mov ax, [myNum]
-  mov cl, 10
-  div cl   ; quotient al, remainder ah
-  add ah, 65h
-  ; movzx cx, ah
-  mov byte [mStr], ah
-  mov byte [mStrLen], 1
+  push ebp
+  mov ebp, esp
+  
+  mov edx, mStr
+  mov eax, 6
+  mov ch, 0
+  ; mov ax, [myNum]
+  l1: mov cl, 10
+  idiv cl
+  ; ah - remainder, al - quotient
+  add ah, 48
+  mov byte [edx], ah
+  inc edx
+  inc ch
+
+  cmp al, 0
+  jne l1
+
+  pop ebp
   ret
